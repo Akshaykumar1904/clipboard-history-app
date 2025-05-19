@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClipBoard History app</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="container">
+      <input type="text" id="search" placeholder="Search History..." />
+      <button id="clearBtn">Clear All</button>
+      <ul class="historyList"></ul>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      if('ServiceWorker' in navigator){
+        navigator.serviceWorker.register('sw.js').then(()=>{
+          console.log("service worker is working & registered");
+        });
+      }
+    </script>
+  </body>
+</html>
