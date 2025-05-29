@@ -1,217 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ClipBoard History app</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="manifest" href="manifest.json" />
-    <style>
-      body {
-        font-family: sans-serif;
-        margin: 0;
-        padding: 0;
-        background: #121212;
-      }
-
-      .container {
-        max-width: 500px;
-        margin: auto;
-        padding: 1rem;
-      }
-
-      input[type="text"] {
-        border-radius: 5px;
-        border: none;
-        width: 95%;
-        padding: 10px;
-        margin-bottom: 1rem;
-        margin-right: 5px;
-      }
-
-      #clearBtn {
-        border: none;
-        margin-bottom: 1rem;
-        border-radius: 5px;
-        padding: 10px 15px;
-        font-size: 14px;
-      }
-
-      #clearBtn:hover {
-        cursor: pointer;
-      }
-
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      li {
-        background: #1e1e1e;
-        padding: 15px;
-        margin-bottom: 10px;
-        border-radius: 10px;
-        word-break: break-word;
-        color: white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .clip-buttons {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-      }
-
-      .copy_btn,
-      .toggle-private,
-      .delete-btn {
-        background-color: #333;
-        color: white;
-        padding: 5px 10px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 12px;
-      }
-
-      .copy_btn:hover,
-      .toggle-private:hover,
-      .delete-btn:hover {
-        background-color: #555;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .empty {
-        color: #ccc;
-        font-style: italic;
-        margin-bottom: 1rem;
-      }
-    </style>
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy-Paste List App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
     <div class="container">
-      <div class="controls">
-        <input type="text" id="search" placeholder="Search History..." />
-      </div>
-
-      <div id="emptyMessage" class="empty hidden">Your Clipboard-list is empty</div>
-      <ul id="ClipboardList"></ul>
+        <div class="header">
+            <h1>Copy-Paste</h1>
+            <p>Copy, paste, and organize your items effortlessly</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <input type="text" id="itemInput" placeholder="Paste or type your item here..." />
+                <button id="addBtn">Add Item</button>
+            </div>
+            
+            <div class="controls">
+                <span class="item-count">Items: <span id="itemCount">0</span></span>
+                <button id="clearBtn">Clear All</button>
+            </div>
+        </div>
+        
+        <div class="list-section">
+            <h2 class="list-title">Your Items</h2>
+            <ul id="itemList"></ul>
+            <div id="emptyState" class="empty-state">
+                Your list is empty. Add some items to get started!
+            </div>
+        </div>
     </div>
 
-    <script>
-      let list = document.getElementById("ClipboardList");
-      let searchInput = document.getElementById("search");
-      const emptyMsg = document.getElementById("emptyMessage");
-
-      let clipboardHistory = JSON.parse(localStorage.getItem("clipboardHistory")) || [];
-
-      function renderList(items = clipboardHistory) {
-        list.innerHTML = "";
-
-        if (items.length === 0) {
-          emptyMsg.classList.remove("hidden");
-          return;
-        }
-
-        emptyMsg.classList.add("hidden");
-
-        items.forEach((item, index) => {
-          const li = document.createElement("li");
-          li.className = "clip-item";
-          if (item.private) {
-            li.classList.add("private");
-          }
-
-          li.innerHTML = `
-            <div>${item.private ? "🔒 Private Content" : item.text}</div>
-            <div class="clip-buttons">
-              <div class="copy_btn">📋 Copy</div>
-              <button class="toggle-private">${item.private ? "Make public" : "Make private"}</button>
-              <button class="delete-btn">🗑️ Delete</button>
-            </div>
-          `;
-
-          li.querySelector(".copy_btn").addEventListener("click", () => {
-            if (item.private) {
-              const key = prompt("Enter your security key:");
-              if (key === item.key) {
-                navigator.clipboard.writeText(item.text);
-                alert("Copied successfully");
-              } else {
-                alert("Incorrect security key");
-              }
-            } else {
-              navigator.clipboard.writeText(item.text);
-              alert("Copied successfully");
-            }
-          });
-
-          li.querySelector(".toggle-private").addEventListener("click", () => {
-            if (!item.private) {
-              const key = prompt("Add your security key:");
-              if (key && key.trim()) {
-                item.private = true;
-                item.key = key;
-              }
-            } else {
-              const confirmUnlock = confirm("Remove from private protection?");
-              if (confirmUnlock) {
-                item.private = false;
-                delete item.key;
-              }
-            }
-            saveHistory();
-            renderList();
-          });
-
-          li.querySelector(".delete-btn").addEventListener("click", () => {
-            clipboardHistory.splice(index, 1);
-            saveHistory();
-            renderList();
-          });
-
-          list.appendChild(li);
-        });
-      }
-
-      function saveHistory() {
-        localStorage.setItem("clipboardHistory", JSON.stringify(clipboardHistory));
-      }
-
-      document.addEventListener("paste", async (e) => {
-        const text = e.clipboardData.getData("text");
-        if (text.trim() === "") return;
-
-        if (clipboardHistory.some((item) => item.text === text)) return;
-
-        clipboardHistory.unshift({ text, private: false });
-        saveHistory();
-        renderList();
-      });
-
-      searchInput.addEventListener("input", () => {
-        const query = searchInput.value.toLowerCase();
-        const filtered = clipboardHistory.filter((item) =>
-          item.text.toLowerCase().includes(query)
-        );
-        renderList(filtered);
-      });
-
-      renderList();
-    </script>
-
-    <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("sw.js").then(() => {
-          console.log("Service worker is working & registered");
-        });
-      }
-    </script>
-  </body>
+    <script src="script.js"></script>
+</body>
 </html>

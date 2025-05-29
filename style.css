@@ -1,48 +1,228 @@
-body{
-  font-family: sans-serif;
-  margin:0;
-  padding:0;
-  background: #121212;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.container{
-  max-width: 500px;
-  margin:auto;
-  padding: 1rem;
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
 }
 
-input[type="text"]{
-  border-radius: 5px;
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.header {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 30px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  font-weight: 300;
+}
+
+.header p {
+  opacity: 0.9;
+  font-size: 1.1em;
+}
+
+.input-section {
+  padding: 30px;
+  border-bottom: 1px solid #eee;
+}
+
+.input-group {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+#itemInput {
+  flex: 1;
+  padding: 15px 20px;
+  font-size: 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+#itemInput:focus {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#addBtn {
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
   border: none;
-  width: 95%;
-  padding: 10px;
-  margin-bottom: 1rem;
-  margin-right: 5px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-#clearBtn{
+#addBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+#addBtn:active {
+  transform: translateY(0);
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#clearBtn {
+  padding: 10px 20px;
+  background: #dc3545;
+  color: white;
   border: none;
-  margin-bottom: 1rem;
-  border-radius: 5px;
-  padding: 10px 15px ;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+#clearBtn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.item-count {
+  color: #666;
   font-size: 14px;
 }
 
-#clearBtn:hover{
-  cursor: pointer;
+.list-section {
+  padding: 30px;
+  min-height: 200px;
 }
 
-ul{
+.list-title {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.list-title::before {
+  content: "📝";
+  font-size: 1.2em;
+}
+
+#itemList {
   list-style: none;
-  padding: 0;
 }
 
-li{
-  background:#fff;
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 5px;
+.list-item {
+  background: #f8f9fa;
+  margin-bottom: 12px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  animation: slideIn 0.3s ease;
+}
+
+.list-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.item-text {
+  flex: 1;
   word-break: break-word;
+  line-height: 1.5;
+  color: #333;
 }
 
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.delete-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.empty-state {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 40px 20px;
+}
+
+.empty-state::before {
+  content: "📋";
+  display: block;
+  font-size: 3em;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .input-group {
+    flex-direction: column;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .header h1 {
+    font-size: 2em;
+  }
+}

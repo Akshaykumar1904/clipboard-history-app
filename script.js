@@ -1,45 +1,111 @@
-let historyList = document.querySelector(".historyList");
-let searchInput = document.getElementById("search");
-const clearBtn = document.getElementById("clearBtn");
+class ListApp {
+  constructor() {
+    this.items = this.loadItems();
+    this.initElements();
+    this.bindEvents();
+    this.render();
+  }
 
-let clipboardHistory = JSON.parse(localStorage.getItem("clipboardHistory")) || [];
+  initElements() {
+    this.itemInput = document.getElementById('itemInput');
+    this.addBtn = document.getElementById('addBtn');
+    this.clearBtn = document.getElementById('clearBtn');
+    this.itemList = document.getElementById('itemList');
+    this.itemCount = document.getElementById('itemCount');
+    this.emptyState = document.getElementById('emptyState');
+  }
 
-function renderList(items) {
-  historyList.innerHTML = " ";
-  items.forEach((item, index) => {
-    const li = document.createElement("li");
-    li.textContent = item;
-    historyList.appendChild(li);
-  });
+  bindEvents() {
+    this.addBtn.addEventListener('click', () => this.addItem());
+    this.itemInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.addItem();
+    });
+    this.clearBtn.addEventListener('click', () => this.clearAll());
+  }
+
+  addItem() {
+    const text = this.itemInput.value.trim();
+    if (text === '') {
+      this.itemInput.focus();
+      return;
+    }
+
+    const item = {
+      id: Date.now(),
+      text: text,
+      timestamp: new Date().toLocaleString()
+    };
+
+    this.items.unshift(item);
+    this.saveItems();
+    this.render();
+    this.itemInput.value = '';
+    this.itemInput.focus();
+  }
+
+  deleteItem(id) {
+    this.items = this.items.filter(item => item.id !== id);
+    this.saveItems();
+    this.render();
+  }
+
+  clearAll() {
+    if (this.items.length === 0) return;
+
+    if (confirm('Are you sure you want to clear all items?')) {
+      this.items = [];
+      this.saveItems();
+      this.render();
+    }
+  }
+
+  render() {
+    this.itemList.innerHTML = '';
+    this.itemCount.textContent = this.items.length;
+
+    if (this.items.length === 0) {
+      this.emptyState.style.display = 'block';
+      return;
+    }
+
+    this.emptyState.style.display = 'none';
+
+    this.items.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'list-item';
+      li.innerHTML = `
+                        <span class="item-text">${this.escapeHtml(item.text)}</span>
+                        <button class="delete-btn" onclick="app.deleteItem(${item.id})" title="Delete item">×</button>
+                    `;
+      this.itemList.appendChild(li);
+    });
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  saveItems() {
+    localStorage.setItem('listAppItems', JSON.stringify(this.items));
+  }
+
+  loadItems() {
+    try {
+      const saved = localStorage.getItem('listAppItems');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.warn('Failed to load items from localStorage:', e);
+      return [];
+    }
+  }
 }
 
+// Initialize the app
+const app = new ListApp();
 
-document.addEventListener('copy', async () => {
-  try {
-    const text = await navigator.clipboard.readText();
-    if (text && !clipboardHistory.includes(text)) {
-      clipboardHistory.unshift(text);
-      localStorage.setItem("clipboardHistory", JSON.stringify(clipboardHistory));
-      renderList(clipboardHistory);
-    }
-  } catch (error) {
-    console.error("there is some issue in copying", error);
-  }
+// Focus input on page load
+window.addEventListener('load', () => {
+  document.getElementById('itemInput').focus();
 });
-
-searchInput.addEventListener('input', () => {
-  const searchTerm = searchInput.value.toLowerCase();
-  const filtered = clipboardHistory.filter(item => {
-    item.toLowerCase().includes(searchTerm);
-  });
-  renderList(filtered);
-})
-
-clearBtn.addEventListener('click',()=>{
-  clipboardHistory = [];
-  localStorage.removeItem("clipboardHistory");
-  renderList([]);
-})
-
-console.log(clipboardHistory)
-renderList(clipboardHistory);
